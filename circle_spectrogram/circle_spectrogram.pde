@@ -29,7 +29,8 @@ void setup() {
     minim = new Minim(this);
 //    String fname = "/Users/edwardm/Downloads/Madeon - Pop Culture.mp3";
 //    String fname = "/Users/edwardm/Downloads/11 Animals.mp3";
-    String fname = "/Users/edwardm/Downloads/06 Pick Up [Four Tet Mix Edit].mp3";
+//    String fname = "/Users/edwardm/Downloads/06 Pick Up [Four Tet Mix Edit].mp3";
+    String fname = "/Users/edwardm/Downloads/sexual healing-hot 8 brass band.mp3";
     // fft creation
     in = minim.loadFile(fname, 2048);
     in.loop();
@@ -56,17 +57,18 @@ void draw() {
         // fill in the new column of spectral values (and scale)
         int val = (int)Math.round(Math.max(0, 52 * Math.log10(1000 * fft.getBand(i))));
         int nextVal = (int)Math.round(Math.max(0, 52 * Math.log10(1000 * fft.getBand(i+1))));
+//        stroke(128, 255, 255);
         stroke(255);
         line(xCenter, yCenter + holeRadius, xCenter , yCenter + graphRadius);
         line(val/20 + xCenter, yCenter + graphRadius - i, nextVal/20 + xCenter, yCenter + graphRadius - (i+1));
 
         int sval = Math.min(255, val);
-        Float svalMod= (int)(sval - (255-sval)*0.5;
-//        color pointColor = color(255 - sval, sval, sval);
-        color pointColor = color(svalMod);
+        Float svalMod= sval - (255-sval)*1.0;
+        color pointColor = color(255 - svalMod, svalMod, svalMod);
+//        color pointColor = color(svalMod);
         float theta = radians(270 + angle);
-        int xSpecPoint = (int)Math.min(graphDiameter, (graphRadius - i)*cos(theta) + graphRadius);
-        int ySpecPoint = (int)Math.min(graphDiameter, (graphRadius - i)*sin(theta - radians(180)) + graphRadius);
+        int xSpecPoint = (int)Math.min(graphDiameter, (graphRadius - i) * cos(theta) + graphRadius);
+        int ySpecPoint = (int)Math.min(graphDiameter, (graphRadius - i) * sin(theta - radians(180)) + graphRadius);
         int pixIndex = Math.max(0, Math.min(graphImg.width*graphImg.height - 1, ySpecPoint*graphDiameter + xSpecPoint));
         graphImg.pixels[pixIndex] = pointColor;
     }
