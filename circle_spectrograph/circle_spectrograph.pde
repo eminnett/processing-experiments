@@ -5,14 +5,23 @@ Minim minim;
 AudioPlayer in;
 FFT fft;
 int frame = 0;
-int radius = 256;
-int colmax;
-int rowmax = radius;
+int holeRadius = 64;
+int specRadius = 256;
+int graphRadius = holeRadius + specRadius;
+int graphDiameter = graphRadius * 2;
+int xPadding = 100;
+int yPadding = 20;
+int xCenter = xPadding + graphRadius;
+int yCenter = yPadding + graphRadius;
+int fps = 60;
+Float trackFrames;
+PImage graphImg = createImage(graphDiameter, graphDiameter, ARGB);
 
 
 void setup() {
     // window
-    size(radius*2, radius*2, P3D);
+    frameRate(fps);
+    size(xCenter*2, yCenter*2, P3D);
     background(0);
     smooth();
 
@@ -25,29 +34,44 @@ void setup() {
     in.loop();
     fft = new FFT(in.bufferSize(), in.sampleRate());
     fft.window(FFT.HAMMING);
+    trackFrames = in.length() / 1000.0 * fps;
+//    graphImg.loadPixels();
+//    for (int i = 0; i < graphImg.pixels.length; i++) {
+//      graphImg.pixels[i] = color(0, 90, 102); 
+//    }
+//    graphImg.updatePixels();
 }
 
 
 void draw() {
-//  background(0);
+    background(0);
     colorMode(HSB, 255);
-    // stroke(255);
 
     fft.forward(in.mix);
-    int shrink = fft.specSize() / radius;
+    int shrink = fft.specSize() / specRadius;
+    Float angle = frame/trackFrames*360;
+    graphImg.loadPixels();
     for (int i = 0; i < fft.specSize() / shrink; ++i) {
         // fill in the new column of spectral values (and scale)
         int val = (int)Math.round(Math.max(0, 52 * Math.log10(1000 * fft.getBand(i))));
         int nextVal = (int)Math.round(Math.max(0, 52 * Math.log10(1000 * fft.getBand(i+1))));
-//        line(radius, radius,radius , radius*2);
-//        line(val/10 + radius, radius*2 - i,nextVal/10 + radius , radius*2 -(i+1));
+        stroke(255);
+        line(xCenter, yCenter + holeRadius, xCenter , yCenter + graphRadius);
+        line(val/20 + xCenter, yCenter + graphRadius - i, nextVal/20 + xCenter, yCenter + graphRadius - (i+1));
 
         int sval = Math.min(255, val);
-        stroke(255 - sval, sval, sval);
-        float theta = radians(270 - frame/30000.0*360);
-        point((radius - i)*cos(theta) + radius, (radius - i)*sin(theta + radians(180)) + radius);
+        color pointColor = color(255 - sval, sval, sval);
+        float theta = radians(270 + angle);
+        int xSpecPoint = (int)Math.min(graphDiameter, (graphRadius - i)*cos(theta) + graphRadius);
+        int ySpecPoint = (int)Math.min(graphDiameter, (graphRadius - i)*sin(theta - radians(180)) + graphRadius);
+        int pixIndex = Math.max(0, Math.min(graphImg.width*graphImg.height - 1, ySpecPoint*graphDiameter + xSpecPoint));
+        graphImg.pixels[pixIndex] = pointColor;
     }
-
+    graphImg.updatePixels();
+    translate(xCenter, yCenter);
+    rotate(radians(angle));
+    translate(-xCenter*2 + xPadding, -yCenter*2 + yPadding);
+    image(graphImg, xCenter, yCenter);
     ++frame;
 }
 
