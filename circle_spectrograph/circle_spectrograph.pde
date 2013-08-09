@@ -27,8 +27,9 @@ void setup() {
 
     // object creation
     minim = new Minim(this);
-    String fname = "/Users/edwardm/Downloads/Madeon - Pop Culture.mp3";
-
+//    String fname = "/Users/edwardm/Downloads/Madeon - Pop Culture.mp3";
+//    String fname = "/Users/edwardm/Downloads/11 Animals.mp3";
+    String fname = "/Users/edwardm/Downloads/06 Pick Up [Four Tet Mix Edit].mp3";
     // fft creation
     in = minim.loadFile(fname, 2048);
     in.loop();
@@ -60,7 +61,9 @@ void draw() {
         line(val/20 + xCenter, yCenter + graphRadius - i, nextVal/20 + xCenter, yCenter + graphRadius - (i+1));
 
         int sval = Math.min(255, val);
-        color pointColor = color(255 - sval, sval, sval);
+        Float svalMod= (int)(sval - (255-sval)*0.5;
+//        color pointColor = color(255 - sval, sval, sval);
+        color pointColor = color(svalMod);
         float theta = radians(270 + angle);
         int xSpecPoint = (int)Math.min(graphDiameter, (graphRadius - i)*cos(theta) + graphRadius);
         int ySpecPoint = (int)Math.min(graphDiameter, (graphRadius - i)*sin(theta - radians(180)) + graphRadius);
