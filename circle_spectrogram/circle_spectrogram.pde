@@ -1,6 +1,8 @@
+import controlP5.*;
 import ddf.minim.analysis.*;
 import ddf.minim.*;
 
+ControlP5 cp5;
 Minim minim;
 AudioPlayer in;
 FFT fft;
@@ -31,12 +33,24 @@ void setup() {
     smooth();
 
     // object creation
+    cp5 = new ControlP5(this);
+    cp5.addButton("colorA")
+     .setValue(0)
+     .setPosition(0,0)
+     .setSize(200,19)
+     ;
+    cp5.addButton("colorB")
+     .setValue(100)
+     .setPosition(0,20)
+     .setSize(200,19)
+     ;
+    
     minim = new Minim(this);
 //    String fname = "/Users/edwardm/Downloads/Madeon - Pop Culture.mp3";
 //    String fname = "/Users/edwardm/Downloads/11 Animals.mp3";
-//    String fname = "/Users/edwardm/Downloads/06 Pick Up [Four Tet Mix Edit].mp3";
+    String fname = "/Users/edwardm/Downloads/06 Pick Up [Four Tet Mix Edit].mp3";
 //    String fname = "/Users/edwardm/Downloads/sexual healing-hot 8 brass band.mp3";
-    String fname = "/Users/edwardminnett/Downloads/Michel Camilo (Discography)/1994 - One more once/07. Caribe.mp3";
+//    String fname = "/Users/edwardminnett/Downloads/Michel Camilo (Discography)/1994 - One more once/07. Caribe.mp3";
 //    String fname = "/Users/edwardminnett/Downloads/Michel Camilo (Discography)/2006 - Rhapsody in Blue/01 - Rhapsody in Blue (Gershwin).mp3";
 //    String fname = "/Users/edwardminnett/Downloads/Ravel - Bolero - www.LoKoTorrents.com/01 - Bolero (Tempo Di Bolero Moderato Assai).mp3";
 //    String fname = "/Users/edwardminnett/Downloads/Beethoven, Ludwig van Symphony No.5 in C minor/1 - Symphony No.5 - Allegro con brio.mp3";
@@ -89,7 +103,9 @@ void draw() {
         graphImg.updatePixels();
     }
     translate(xCenter, yCenter);
+    pushMatrix();
     rotate(playAngle);
+    popMatrix();
     translate(-xCenter*2 + xPadding, -yCenter*2 + yPadding);
     image(graphImg, xCenter, yCenter);
     
@@ -100,14 +116,14 @@ void draw() {
 
 void mousePressed() {
     prevAngleOverride = angleOverride;
-//    if(in.isPlaying()) {
+    if(in.isPlaying()) {
 //      Float percentPlayed = in.position() / ( in.length() * 1.0 );
 //      Float mouseAngle = percentPlayed * 2 * PI; 
 //      println("current angle: " + String.valueOf(mouseAngle));
 //      in.pause();
-//    } else {
-//      in.play(); 
-//    }
+    } else {
+      in.play(); 
+    }
     if(saveGraphics) {
       save("images/spectrogram_"+year()+""+month()+""+day()+"_"+hour()+""+minute()+"_"+second()+""+millis()+".tif");
     }
@@ -127,11 +143,32 @@ void mouseDragged() {
 void mouseReleased() {
     int skipMils = (int)((playAngle / (2*PI)) * in.length());
     in.cue(skipMils);
-//    println("skip in milliseconds: " + String.valueOf(skipMils));
+    println("skip in milliseconds: " + String.valueOf(skipMils));
     mouseAngle = 0.0;
     if(!in.isPlaying()) {
         in.play();
     }
+}
+
+public void controlEvent(ControlEvent theEvent) {
+  println(theEvent.getController().getName());
+//  n = 0;
+}
+
+// function colorA will receive changes from 
+// controller with name colorA
+public void colorA(int theValue) {
+  println("a button event from colorA: "+theValue);
+//  c1 = c2;
+//  c2 = color(0,160,100);
+}
+
+// function colorB will receive changes from 
+// controller with name colorB
+public void colorB(int theValue) {
+  println("a button event from colorB: "+theValue);
+//  c1 = c2;
+//  c2 = color(150,0,0);
 }
 
 void stop() {
