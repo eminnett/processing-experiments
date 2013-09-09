@@ -20,6 +20,7 @@ Float trackFrames;
 Float prevAngleOverride = 0.0;
 Float playAngle = 0.0;
 Float angleOverride = 0.0;
+Float startMouseAngle = 0.0;
 Float mouseAngle = 0.0;
 PImage graphImg = createImage(graphDiameter, graphDiameter, ARGB);
 boolean saveGraphics = false;
@@ -33,17 +34,17 @@ void setup() {
     smooth();
 
     // object creation
-    cp5 = new ControlP5(this);
-    cp5.addButton("colorA")
-     .setValue(0)
-     .setPosition(0,0)
-     .setSize(200,19)
-     ;
-    cp5.addButton("colorB")
-     .setValue(100)
-     .setPosition(0,20)
-     .setSize(200,19)
-     ;
+//    cp5 = new ControlP5(this);
+//    cp5.addButton("colorA")
+//     .setValue(0)
+//     .setPosition(0,0)
+//     .setSize(200,19)
+//     ;
+//    cp5.addButton("colorB")
+//     .setValue(100)
+//     .setPosition(0,20)
+//     .setSize(200,19)
+//     ;
     
     minim = new Minim(this);
 //    String fname = "/Users/edwardm/Downloads/Madeon - Pop Culture.mp3";
@@ -103,9 +104,7 @@ void draw() {
         graphImg.updatePixels();
     }
     translate(xCenter, yCenter);
-    pushMatrix();
     rotate(playAngle);
-    popMatrix();
     translate(-xCenter*2 + xPadding, -yCenter*2 + yPadding);
     image(graphImg, xCenter, yCenter);
     
@@ -116,14 +115,9 @@ void draw() {
 
 void mousePressed() {
     prevAngleOverride = angleOverride;
-    if(in.isPlaying()) {
-//      Float percentPlayed = in.position() / ( in.length() * 1.0 );
-//      Float mouseAngle = percentPlayed * 2 * PI; 
-//      println("current angle: " + String.valueOf(mouseAngle));
-//      in.pause();
-    } else {
-      in.play(); 
-    }
+    double xDiff = xCenter - mouseX;
+    double yDiff = yCenter - mouseY;
+    startMouseAngle = (float)(Math.atan2(yDiff, xDiff) + PI / 2);
     if(saveGraphics) {
       save("images/spectrogram_"+year()+""+month()+""+day()+"_"+hour()+""+minute()+"_"+second()+""+millis()+".tif");
     }
@@ -137,7 +131,7 @@ void mouseDragged() {
     double yDiff = yCenter - mouseY;
     mouseAngle = (float)(Math.atan2(yDiff, xDiff) + PI / 2);
 //    println("mouse angle: " + String.valueOf(mouseAngle));
-    angleOverride = prevAngleOverride + mouseAngle;
+    angleOverride = prevAngleOverride + mouseAngle - startMouseAngle;
 }
 
 void mouseReleased() {
@@ -145,31 +139,40 @@ void mouseReleased() {
     in.cue(skipMils);
     println("skip in milliseconds: " + String.valueOf(skipMils));
     mouseAngle = 0.0;
+    startMouseAngle = 0.0;
     if(!in.isPlaying()) {
         in.play();
     }
 }
-
-public void controlEvent(ControlEvent theEvent) {
-  println(theEvent.getController().getName());
-//  n = 0;
+void keyPressed() {
+    if (key == ' ') {
+        if(in.isPlaying()) {
+            in.pause();
+        } else {
+            in.play();
+        }
+    }
 }
+//public void controlEvent(ControlEvent theEvent) {
+//  println(theEvent.getController().getName());
+////  n = 0;
+//}
 
-// function colorA will receive changes from 
-// controller with name colorA
-public void colorA(int theValue) {
-  println("a button event from colorA: "+theValue);
-//  c1 = c2;
-//  c2 = color(0,160,100);
-}
-
-// function colorB will receive changes from 
-// controller with name colorB
-public void colorB(int theValue) {
-  println("a button event from colorB: "+theValue);
-//  c1 = c2;
-//  c2 = color(150,0,0);
-}
+//// function colorA will receive changes from 
+//// controller with name colorA
+//public void colorA(int theValue) {
+//  println("a button event from colorA: "+theValue);
+////  c1 = c2;
+////  c2 = color(0,160,100);
+//}
+//
+//// function colorB will receive changes from 
+//// controller with name colorB
+//public void colorB(int theValue) {
+//  println("a button event from colorB: "+theValue);
+////  c1 = c2;
+////  c2 = color(150,0,0);
+//}
 
 void stop() {
     // always close Minim audio classes when you finish with them
